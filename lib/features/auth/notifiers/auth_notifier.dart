@@ -18,7 +18,10 @@ class AuthNotifier extends ChangeNotifier {
     _authSubscription?.cancel();
 
     _authSubscription = _authService.authStateChanges().listen((user) {
-      _state = _state.copyWith(user: user);
+      _state = _state.copyWith(
+        user: user,
+        registerSuccess: _state.registerSuccess,
+      );
       notifyListeners();
     });
   }
@@ -26,22 +29,45 @@ class AuthNotifier extends ChangeNotifier {
   Future<void> signUp({
     required String email,
     required String password,
+    required String confirmPassword,
     required String firstName,
     required String lastName,
   }) async {
-    _state = _state.copyWith(isLoading: true, error: null);
+    if (password != confirmPassword) {
+      _state = _state.copyWith(
+        error: 'Wrong confirm password',
+        registerSuccess: false,
+      );
+      notifyListeners();
+      return;
+    }
+
+    _state = _state.copyWith(
+      isLoading: true,
+      error: null,
+      registerSuccess: false,
+    );
     notifyListeners();
 
     try {
-      final user = await _authService.signUp(
+      await _authService.signUp(
         email: email,
         password: password,
         firstName: firstName,
         lastName: lastName,
       );
-      _state = _state.copyWith(isLoading: false, user: user);
+
+      _state = _state.copyWith(
+        isLoading: false,
+        registerSuccess: true,
+        // user: user,
+      );
     } catch (e) {
-      _state = _state.copyWith(isLoading: false, error: e.toString());
+      _state = _state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+        registerSuccess: false,
+      );
     }
     notifyListeners();
   }
@@ -51,8 +77,8 @@ class AuthNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final user = await _authService.signIn(email: email, password: password);
-      _state = _state.copyWith(isLoading: false, user: user);
+      await _authService.signIn(email: email, password: password);
+      _state = _state.copyWith(isLoading: false);
     } catch (e) {
       _state = _state.copyWith(isLoading: false, error: e.toString());
     }
@@ -63,6 +89,20 @@ class AuthNotifier extends ChangeNotifier {
     await _authService.signOut();
     _state = AuthState();
     notifyListeners();
+  }
+
+  void clearError() {
+    if (_state.error != null) {
+      _state = _state.copyWith(error: null);
+      notifyListeners();
+    }
+  }
+
+  void clearRegisterSuccess() {
+    if (_state.registerSuccess) {
+      _state = _state.copyWith(registerSuccess: false);
+      notifyListeners();
+    }
   }
 
   @override

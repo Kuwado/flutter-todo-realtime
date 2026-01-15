@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_realtime/app/app_keys.dart';
 import 'package:flutter_todo_realtime/app/auth_gate.dart';
 import 'package:flutter_todo_realtime/features/auth/datasource/auth_datasource.dart';
 import 'package:flutter_todo_realtime/features/auth/datasource/user_datasource.dart';
@@ -38,9 +39,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
-      home: AuthGate(),
+      home: const AuthGate(),
     );
   }
 }
