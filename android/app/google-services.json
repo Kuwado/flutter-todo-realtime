@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1086280242740",
+    "project_id": "flutter-todo-realtime-5a0ea",
+    "storage_bucket": "flutter-todo-realtime-5a0ea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086280242740:android:f2c88f9bcf95b5b1349c61",
+        "android_client_info": {
+          "package_name": "com.example.flutter_todo_realtime"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHAJcLGBM1Fb8tiFZH2s9pxumVMHTRSmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
