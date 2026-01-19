@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,9 @@ import 'package:flutter_todo_realtime/features/auth/datasource/auth_datasource.d
 import 'package:flutter_todo_realtime/features/auth/datasource/user_datasource.dart';
 import 'package:flutter_todo_realtime/features/auth/notifiers/auth_notifier.dart';
 import 'package:flutter_todo_realtime/features/auth/services/auth_service.dart';
+import 'package:flutter_todo_realtime/features/dashboard/datasource/todo_datasource.dart';
+import 'package:flutter_todo_realtime/features/dashboard/notifiers/todo_notifier.dart';
+import 'package:flutter_todo_realtime/features/dashboard/services/todo_service.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -22,13 +26,26 @@ void main() async {
     userDatasource: UserDatasource(),
   );
 
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final todoDatasource = TodoDatasource(firestore: firestore);
+  final todoService = TodoService(todoDatasource);
+
   runApp(
-    ChangeNotifierProvider<AuthNotifier>(
-      create: (_) {
-        final notifier = AuthNotifier(authService: authService);
-        notifier.startAuthListener();
-        return notifier;
-      },
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthNotifier>(
+          create: (_) {
+            final notifier = AuthNotifier(authService: authService);
+            notifier.startAuthListener();
+            return notifier;
+          },
+          child: const MainApp(),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => TodoNotifier(todoService: todoService),
+        ),
+      ],
       child: const MainApp(),
     ),
   );

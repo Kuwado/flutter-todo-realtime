@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_realtime/features/auth/notifiers/auth_notifier.dart';
+import 'package:flutter_todo_realtime/features/dashboard/notifiers/todo_notifier.dart';
+import 'package:flutter_todo_realtime/features/dashboard/presentation/create_todo_screen.dart';
 import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -16,6 +18,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final auth = context.watch<AuthNotifier>();
+    final todoNotifier = context.read<TodoNotifier>();
+    final user = auth.state.user;
+
+    // 🔥 START LISTEN TODOS
+    if (user != null) {
+      todoNotifier.start(user.uid);
+    }
 
     if (auth.state.registerSuccess && !_shown) {
       _shown = true;
@@ -35,12 +44,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthNotifier>();
+    final notifier = context.watch<TodoNotifier>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),
-      body: Center(
-        child: Text('Dashboard ${auth.state.user?.email ?? 'ko co'}'),
+      body: notifier.todos.isEmpty
+          ? const Center(child: Text('No todos'))
+          : ListView.builder(
+              itemCount: notifier.todos.length,
+              itemBuilder: (context, index) {
+                final todo = notifier.todos[index];
+                return ListTile(
+                  title: Text(todo.title),
+                  subtitle: Text(todo.progress),
+                  trailing: IconButton(
+                    onPressed: () => notifier.deleteTodo(todo.id ?? ''),
+                    icon: const Icon(Icons.delete),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreateTodoScreen()),
+          );
+        },
       ),
     );
   }
